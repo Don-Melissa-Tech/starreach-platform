@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Client Dashboard — StarReach</title>
+        <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/css/style.css">
+    </head>
+    <body>
+        <header>
+            <nav class="nav wrap">
+                <a class="brand" href="/">STARREACH<span>•</span></a>
+                <div>
+                    <button class="btn btn-outline btn-sm" data-action="logout">Sign Out</button>
+                </div>
+            </nav>
+        </header>
+        <main class="dashboard">
+            <div class="wrap">
+                <div id="clientView"></div>
+            </div>
+        </main>
+        <div id="modalRoot"></div>
+        <div id="toast" class="toast"></div>
+        <script src="/js/app.js"></script>
+    </body>
+</html>

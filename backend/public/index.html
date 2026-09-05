@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>StarReach — Premium Talent Booking</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="/css/style.css">
+    </head>
+    <body>
+        <header>
+            <nav class="nav wrap">
+                <a class="brand" href="/">STARREACH<span>•</span></a>
+                <div class="nav-links"><a href="#services">Services</a>
+                    <a href="#talent">Actors</a>
+                    <a href="#how">How It Works</a>
+                    <a href="#faq">FAQ</a>
+                </div>
+                <div class="nav-actions">
+                    <button class="btn btn-outline btn-sm" data-action="login">Sign In</button>
+                    <button class="btn btn-gold btn-sm" data-action="register">Get Started</button>
+                    <button class="hamburger" id="hamburger">☰</button>
+                </div>
+            </nav>
+            <div id="mobileMenu" class="mobile-menu">
+                <a href="#services">Services</a>
+                <a href="#talent">Actors</a>
+                <a href="#how">How It Works</a>
+                <a href="#faq">FAQ</a>
+            </div>
+        </header>
+        <main>
+            <section class="hero">
+                <div class="hero-slide-layer" id="heroLayer1"></div>
+                <div class="hero-slide-layer" id="heroLayer2"></div>
+                <div class="bulbs">● ● ● ● ● ● ● ● ● ● ●</div>
+                <div class="hero-inner">
+                    <span class="eyebrow mono">PREMIUM TALENT BOOKING</span>
+                    <h1>Every Event<br>Tells A <span>Story.</span></h1>
+                    <p>Connect with vetted actors, speakers, performers and personalities for appearances that land exactly as planned.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-red" data-scroll="#talent">Browse Actors</button>
+                        <button class="btn btn-outline" data-scroll="#how">How It Works</button>
+                    </div>
+                </div>
+                <div class="marquee">
+                    <div>NOW BOOKING · LIVE PERFORMANCES　 NOW BOOKING · KEYNOTE SPEAKERS　 NOW BOOKING · BRAND PARTNERSHIPS　 NOW BOOKING · PRIVATE EVENTS　</div>
+                </div>
+            </section>
+            <section class="section stats-section">
+                <div class="wrap">
+                    <div class="stats">
+                        <div><b>180+</b><span>Actors</span></div>
+                        <div><b>3,200+</b><span>Bookings</span></div>
+                        <div><b>32</b><span>Cities Served</span></div>
+                        <div><b>96%</b><span>Repeat Clients</span></div>
+                    </div>
+                </div>
+            </section>
+            <section class="section" id="services">
+                <div class="wrap">
+                    <div class="sec-head">
+                        <span class="tag">WHAT WE OFFER</span>
+                        <h2>Built For Every Stage</h2>
+                        <p>From a private celebration to a major corporate production, we structure the engagement around your event.</p>
+                    </div>
+                    <div class="services-grid">
+                        <article>
+                            <i>◆</i>
+                            <h3>Keynotes & Panels</h3>
+                            <p>Speakers and moderators for conferences, summits and leadership events.</p>
+                        </article>
+                        <article>
+                            <i>♪</i>
+                            <h3>Live Performances</h3>
+                            <p>Professional artists and full-production acts for celebrations and launches.</p>
+                        </article>
+                        <article>
+                            <i>▣</i>
+                            <h3>Private Appearances</h3>
+                            <p>Personal appearances, greetings, celebrations and VIP experiences.</p>
+                        </article>
+                        <article>
+                            <i>✦</i>
+                            <h3>Brand Partnerships</h3>
+                            <p>Ambassador arrangements, campaigns and custom content engagements.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+            <section class="section dark" id="talent">
+                <div class="wrap">
+                    <div class="sec-head">
+                        <span class="tag">THE ROSTER</span>
+                        <h2>Featured Actors</h2>
+                        <p>Click an actor image or profile to view biography, booking sections and prices.</p>
+                    </div>
+                    <div id="artistGrid" class="artist-grid">
+                        <div class="loading">Loading actors...</div>
+                    </div>
+                </div>
+            </section>
+            <section class="section" id="how">
+                <div class="wrap">
+                    <div class="sec-head">
+                        <span class="tag">THE PROCESS</span>
+                        <h2>Three Steps To The Stage</h2>
+                    </div>
+                    <div class="steps">
+                        <article>
+                            <b>01</b>
+                            <h3>Choose</h3>
+                            <p>Browse actors and open a profile to compare sections and prices.</p>
+                        </article>
+                        <article>
+                            <b>02</b>
+                            <h3>Book</h3>
+                            <p>Create an account or sign in, then submit your event management information.</p>
+                        </article>
+                        <article>
+                            <b>03</b>
+                            <h3>Confirm</h3>
+                            <p>Our admin team reviews your request and updates the booking status in your dashboard.</p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+            <section class="section dark gallery-section">
+                <div class="wrap">
+                    <div class="sec-head">
+                        <span class="tag">RECENT WORK</span>
+                        <h2>Unforgettable By Design</h2>
+                    </div>
+                    <section class="gallery">
+                        <div class="gallery-item">
+                            <img src="/images/micheal_friend.png" alt="Michael and friend">
+                            <p class="caption">Michael and Friend at the Daer Night Club</p>
+                        </div>
+
+                        <div class="gallery-item">
+                            <img src="/images/awared.png" alt="Daer Night Club">
+                            <p class="caption">Michael at the Daer Night Club</p>
+                        </div>
+
+                        <div class="gallery-item">
+                            <img src="/images/micheal_cel.png" alt="">
+                            <p class="caption">The Event at the Daer Night Club</p>
+                        </div>
+
+                        <div class="gallery-item">
+                            <img src="/images/clude.png" alt="Event">
+                            <p class="caption">The Event at the Daer Night Club</p>
+                        </div>
+                    </section>
+                </div>
+            </section>
+            <section class="section" id="faq">
+                <div class="wrap">
+                    <div class="sec-head">
+                        <span class="tag">QUESTIONS</span>
+                        <h2>Frequently Asked</h2>
+                    </div>
+                    <div class="faq">
+                        <button class="faq-q">How does booking work?<span>+</span></button>
+                        <div class="faq-a">Choose an actor, create/sign in to your account and submit the event management information. Admin then reviews the request.</div>
+                        <button class="faq-q">Do I need an account to book?<span>+</span></button>
+                        <div class="faq-a">Yes. If you click Book without an account, StarReach opens the registration form in the same page.</div>
+                        <button class="faq-q">Can I see prices before registering?<span>+</span></button>
+                        <div class="faq-a">Yes. Actor profiles show available booking sections and starting prices before you submit a booking.</div>
+                        <button class="faq-q">Can I manage my bookings later?<span>+</span></button>
+                        <div class="faq-a">Yes. Sign in to open your client dashboard and view your profile and booking requests.</div>
+                    </div>
+                </div>
+            </section>
+            <section class="cta">
+                <h2>Let's Fill The Room</h2>
+                <p>Choose your actor and tell us the details. We'll take it from there.</p>
+                <button class="btn btn-gold" data-action="register">Start An Enquiry</button>
+            </section>
+        </main>
+        <footer>
+            <div class="wrap footer">
+                <div>
+                    <div class="brand">STARREACH<span>•</span></div>
+                    <p>Premium talent booking for brands, agencies and private clients.</p>
+                </div>
+                <div>
+                    <h4>Explore</h4>
+                    <a href="#services">Services</a>
+                    <a href="#talent">Actors</a>
+                    <a href="#how">How It Works</a>
+                </div>
+                <div>
+                    <h4>Account</h4>
+                    <a href="#" data-action="login">Sign In</a>
+                    <a href="#" data-action="register">Create Account</a>
+                    <!-- <a href="/client.html">Client Dashboard</a> -->
+                </div>
+                <!-- <div>
+                    <h4>Admin</h4>
+                    <a href="/admin.html">Admin Dashboard</a>
+                </div>-->
+            </div>
+            <div class="copyright">© 2026 StarReach. All rights reserved.</div>
+        </footer>
+        <div id="modalRoot"></div>
+        <div id="toast" class="toast"></div>
+        <script src="/js/app.js"></script>
+    </body>
+    <script>
+        const heroImages = [
+            //"images/micheal_face.png",
+            "images/micheal_friend.png",
+            //"images/awared.png",
+            "images/clude.png"
+        ];
+
+        let currentImage = 0;
+
+        const hero = document.querySelector(".hero");
+
+        // Smaller, contained image — not stretched to fill the frame
+        hero.style.backgroundSize = "95%";        // ← try 50%, 60%, 70% to taste
+        hero.style.backgroundPosition = "center";
+        hero.style.backgroundRepeat = "no-repeat";
+
+        function changeHeroImage() {
+            hero.style.backgroundImage =
+                `url("${heroImages[currentImage]}")`;
+
+            currentImage++;
+
+            if (currentImage >= heroImages.length) {
+                currentImage = 0;
+            }
+        }
+
+        changeHeroImage();
+        setInterval(changeHeroImage, 4000);
+    </script>
+</html>

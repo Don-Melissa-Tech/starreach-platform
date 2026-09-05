@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <meta
+        name="description"
+        content="StarReach Admin Dashboard"
+    >
+
+    <title>Admin Dashboard — StarReach</title>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Main stylesheet -->
+    <link
+        rel="stylesheet"
+        href="/css/style.css"
+    >
+    </head>
+
+    <body>
+
+        <!-- =========================
+            HEADER
+        ========================== -->
+        <header class="site-header">
+
+            <nav class="nav wrap">
+
+                <!-- Logo -->
+                <a
+                    class="brand"
+                    href="/"
+                >
+                    STARREACH<span>•</span>
+                </a>
+
+                <!-- Admin actions -->
+                <div class="nav-actions">
+
+                    <a
+                        href="/"
+                        class="btn btn-outline btn-sm"
+                    >
+                        View Website
+                    </a>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline btn-sm"
+                        data-action="logout"
+                    >
+                        Sign Out
+                    </button>
+
+                </div>
+
+            </nav>
+
+        </header>
+
+
+        <!-- =========================
+            ADMIN DASHBOARD
+        ========================== -->
+        <main class="dashboard">
+
+            <div
+                class="wrap"
+                id="adminView"
+            >
+
+                <!--
+                    loadAdmin() will replace this
+                    with the actual dashboard.
+                -->
+                <div class="loading">
+                    Checking admin access...
+                </div>
+
+            </div>
+
+        </main>
+
+
+        <!-- =========================
+            MODAL CONTAINER
+        ========================== -->
+
+        <!--
+            Add Artist,
+            Edit Artist,
+            Login,
+            Register,
+            Booking forms,
+            etc.
+            can be inserted here by app.js.
+        -->
+        <div id="modalRoot"></div>
+
+
+        <!-- =========================
+            TOAST NOTIFICATIONS
+        ========================== -->
+
+        <div
+            id="toast"
+            class="toast"
+            role="alert"
+            aria-live="polite"
+        ></div>
+
+
+        <!-- =========================
+            JAVASCRIPT
+        ========================== -->
+
+        <script
+            src="/js/app.js"
+            defer
+        ></script>
+
+    </body>
+
+</html>
