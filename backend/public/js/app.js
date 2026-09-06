@@ -748,7 +748,7 @@ async function loadAdmin() {
                                 Featured Artist
                             </label>
 
-                            <p class="sub">Note: manager contact info is no longer set here — edit the MANAGER_DIRECTORY object near the top of app.js instead.</p>
+                            <!--<p class="sub">Note: manager contact info is no longer set here — edit the MANAGER_DIRECTORY object near the top of app.js instead.</p>-->
 
                             <div class="price-section">
                                 <div class="price-section-header">
