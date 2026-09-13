@@ -18,47 +18,34 @@ function toast(msg) {
 
 async function api(url, options = {}) {
     const token = localStorage.getItem('token');
-
     const headers = { ...(options.headers || {}) };
-
-    // Only set JSON Content-Type when the body is NOT FormData.
     if (!(options.body instanceof FormData)) {
         headers['Content-Type'] = 'application/json';
     }
-
     if (token) {
         headers.Authorization = `Bearer ${token}`;
     }
-
     const response = await fetch(`${API}${url}`, { ...options, headers });
-
     let data;
     const contentType = response.headers.get('content-type');
-
     if (contentType && contentType.includes('application/json')) {
         data = await response.json();
     } else {
         data = await response.text();
     }
-
     if (!response.ok) {
         throw new Error(typeof data === 'string' ? data : data.message || 'Request failed');
     }
-
     return data;
 }
 
-// Single, consistent saveAuth: keeps localStorage keys ('token'/'user')
-// in sync with the in-memory `state` object.
 function saveAuth(data) {
     if (!data || !data.token) {
         console.error('No token received from login:', data);
         throw new Error('Login succeeded but no authentication token was received.');
     }
-
     state.token = data.token;
     localStorage.setItem('token', data.token);
-
     if (data.user) {
         state.user = data.user;
         localStorage.setItem('user', JSON.stringify(data.user));
@@ -101,7 +88,6 @@ function modal(html) {
 
 function authModal(type = 'login') {
     const login = type === 'login';
-
     modal(`<button class="close" id="closeModal">&times;</button>
         <h2>${login ? 'Welcome Back' : 'Create Account'}</h2>
         <p class="sub">${login ? 'Sign in to manage your bookings' : 'Join StarReach and book your preferred actor'}</p>
@@ -131,7 +117,6 @@ function authModal(type = 'login') {
 
     if (login) {
         $('#switchRegister').onclick = e => { e.preventDefault(); authModal('register'); };
-
         $('#loginForm').onsubmit = async e => {
             e.preventDefault();
             try {
@@ -150,7 +135,6 @@ function authModal(type = 'login') {
         };
     } else {
         $('#switchLogin').onclick = e => { e.preventDefault(); authModal('login'); };
-
         $('#registerForm').onsubmit = async e => {
             e.preventDefault();
             try {
@@ -169,14 +153,6 @@ function authModal(type = 'login') {
     }
 }
 
-// ---------------------------------------------------------------------
-// MANAGER CONTACT DIRECTORY — edit this by hand, no backend/API involved.
-//
-// Add one entry per actor, keyed by the actor's exact name as it
-// appears on the site (case-sensitive, must match exactly). Any field
-// left blank will just show as "Not available" in the booking modal.
-// WhatsApp can be left blank if it's the same as the phone number.
-// ---------------------------------------------------------------------
 const MANAGER_DIRECTORY = {
     'Lena Star': {
         name: 'Manager Name',
@@ -198,9 +174,6 @@ const MANAGER_DIRECTORY = {
     }
 };
 
-// Booking is no longer self-service: a visitor must have an account before
-// they can see any manager contact details, and each actor has their own
-// manager, looked up locally from MANAGER_DIRECTORY above.
 function bookingModal(actor) {
     if (!state.token) {
         authModal('register');
@@ -222,7 +195,6 @@ function bookingModal(actor) {
 
 function renderManagerContact(actor, manager) {
     const phone = manager?.phone || '';
-    //const whatsappDigits = manager?.whatsapp || '';
     const whatsappRaw = manager?.whatsapp || phone;
     const whatsappDigits = whatsappRaw.replace(/[^\d+]/g, '').replace(/^\+/, '');
 
@@ -254,7 +226,7 @@ function renderManagerError(actor, err) {
     $('#closeModal').onclick = () => $('#modalRoot').innerHTML = '';
 }
 
-async function loadactors() {
+async function loadActors() {
     const grid = $('#actorGrid');
     if (!grid) return;
 
@@ -263,8 +235,8 @@ async function loadactors() {
 
         grid.innerHTML = actors.map(a => `
             <article class="actor-card">
-                <a href="/actor.html?id=${a._id}" class="actor-img">
-                    <img src="${escapeHtml(a.image || '/images/actor-1.jpg')}" alt="${escapeHtml(a.name)}">
+                <a href="/artist.html?id=${a._id}" class="actor-img">
+                    <img src="${escapeHtml(a.image || '/images/artist-1.jpg')}" alt="${escapeHtml(a.name)}">
                     <span class="category">${escapeHtml(a.category)}</span>
                 </a>
                 <div class="actor-body">
@@ -285,17 +257,14 @@ async function loadactors() {
                     if (a) bookingModal(a);
                 };
             });
-            // ^ bookingModal() itself checks for an account before revealing
-            // anything, so no extra guard is needed here.
 
-            revealactorCards(grid);
+            revealActorCards(grid);
         } catch (e) {
             grid.innerHTML = '<div class="loading">Unable to load actors. Check the backend connection.</div>';
         }
     }
 
-    // Slide each actor card in from the right as it scrolls into view.
-    function revealactorCards(grid) {
+    function revealActorCards(grid) {
         const cards = grid.querySelectorAll('.actor-card');
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
@@ -311,13 +280,13 @@ async function loadactors() {
         cards.forEach((card) => observer.observe(card));
     }
 
-async function loadactorProfile() {
+async function loadActorProfile() {
     const box = $('#actorProfile');
     if (!box) return;
 
     const id = new URLSearchParams(location.search).get('id');
     if (!id) {
-        box.innerHTML = '<div class="loading">actor not specified.</div>';
+        box.innerHTML = '<div class="loading">Actor not specified.</div>';
         return;
     }
 
@@ -348,7 +317,7 @@ async function loadactorProfile() {
             b.onclick = () => bookingModal(a);
         });
     } catch (e) {
-        box.innerHTML = '<div class="loading">actor not found.</div>';
+        box.innerHTML = '<div class="loading">Actor not found.</div>';
     }
 }
 
@@ -364,7 +333,6 @@ async function loadClient() {
     try {
         const me = await api('/auth/me');
         state.user = me.user;
-
         const bookings = await api('/bookings/mine');
 
         box.innerHTML = `<div class="dash-head">
@@ -373,7 +341,7 @@ async function loadClient() {
                 <h1>Welcome, ${escapeHtml(state.user.firstName)}</h1>
                 <p>${escapeHtml(state.user.email)} ${state.user.phone ? '· ' + escapeHtml(state.user.phone) : ''}</p>
             </div>
-            <a class="btn btn-gold" href="/#talent">Book Another actor</a>
+            <a class="btn btn-gold" href="/#talent">Book Another Actor</a>
         </div>
         <div class="panel">
             <h2>Profile Information</h2>
@@ -385,7 +353,7 @@ async function loadClient() {
             <h2>My Booking Requests</h2>
             ${bookings.length ? `
             <table class="table">
-                <thead><tr><th>actor</th><th>Section</th><th>Event</th><th>Date</th><th>Status</th></tr></thead>
+                <thead><tr><th>Actor</th><th>Section</th><th>Event</th><th>Date</th><th>Status</th></tr></thead>
                 <tbody>${bookings.map(b => `
                     <tr>
                         <td>${escapeHtml(b.actor?.name || '—')}</td>
@@ -416,7 +384,6 @@ async function loadAdmin() {
     if (!modalRoot) { console.error('modalRoot element not found'); return; }
 
     try {
-        // 1. Check admin authentication
         const me = await api('/auth/me');
         const currentUser = me?.user;
 
@@ -427,7 +394,6 @@ async function loadAdmin() {
             return;
         }
 
-        // 2. Load admin data
         const [stats, actors, bookings, clients] = await Promise.all([
             api('/admin/stats'),
             api('/actors'),
@@ -435,7 +401,6 @@ async function loadAdmin() {
             api('/admin/clients')
         ]);
 
-        // 3. Render dashboard
         view.innerHTML = `
         <div class="admin-layout">
             <aside class="admin-sidebar">
@@ -445,7 +410,7 @@ async function loadAdmin() {
                 </div>
                 <nav class="admin-menu">
                     <button type="button" class="admin-menu-item active" data-admin-section="overview">📊 Dashboard</button>
-                    <button type="button" class="admin-menu-item" data-admin-section="actors">🎤 actors</button>
+                    <button type="button" class="admin-menu-item" data-admin-section="actors">🎤 Actors</button>
                     <button type="button" class="admin-menu-item" data-admin-section="clients">👥 Clients</button>
                     <button type="button" class="admin-menu-item" data-admin-section="bookings">📅 Bookings</button>
                     <button type="button" class="admin-menu-item" data-admin-section="settings">⚙️ Settings</button>
@@ -465,7 +430,7 @@ async function loadAdmin() {
 
                     <div class="admin-stats">
                         <div class="admin-stat"><strong>${stats?.clients ?? clients.length}</strong><span>Clients</span></div>
-                        <div class="admin-stat"><strong>${stats?.actors ?? actors.length}</strong><span>actors</span></div>
+                        <div class="admin-stat"><strong>${stats?.actors ?? actors.length}</strong><span>Actors</span></div>
                         <div class="admin-stat"><strong>${stats?.bookings ?? bookings.length}</strong><span>Bookings</span></div>
                         <div class="admin-stat"><strong>${stats?.pending ?? 0}</strong><span>Pending</span></div>
                     </div>
@@ -475,7 +440,7 @@ async function loadAdmin() {
                             <div><div class="eyebrow">QUICK ACTIONS</div><h2>MANAGEMENT</h2></div>
                         </div>
                         <div class="admin-quick-actions">
-                            <button type="button" class="btn btn-primary" data-admin-section="actors">🎤 Manage actors</button>
+                            <button type="button" class="btn btn-primary" data-admin-section="actors">🎤 Manage Actors</button>
                             <button type="button" class="btn btn-outline-light" data-admin-section="clients">👥 View Clients</button>
                             <button type="button" class="btn btn-outline-light" data-admin-section="bookings">📅 Manage Bookings</button>
                         </div>
@@ -488,14 +453,14 @@ async function loadAdmin() {
                         </div>
                         <div class="table-wrap">
                             <table class="admin-table">
-                                <thead><tr><th>Client</th><th>actor</th><th>Section</th><th>Event Date</th><th>Status</th></tr></thead>
+                                <thead><tr><th>Client</th><th>Actor</th><th>Section</th><th>Event Date</th><th>Status</th></tr></thead>
                                 <tbody>
                                     ${bookings.length ? bookings.slice(0, 5).map(booking => {
                                         const clientName = `${booking.client?.firstName || ''} ${booking.client?.lastName || ''}`.trim() || 'Client';
                                         const status = String(booking.status || 'pending').toLowerCase();
                                         return `<tr>
                                             <td><strong>${escapeHtml(clientName)}</strong><small>${escapeHtml(booking.client?.email || '')}</small></td>
-                                            <td>${escapeHtml(booking.actor?.name || 'Unknown actor')}</td>
+                                            <td>${escapeHtml(booking.actor?.name || 'Unknown Actor')}</td>
                                             <td>${escapeHtml(booking.section || 'Booking')}</td>
                                             <td>${formatDate(booking.eventDate)}</td>
                                             <td><span class="status-badge ${status}">${escapeHtml(status)}</span></td>
@@ -511,10 +476,10 @@ async function loadAdmin() {
                     <div class="admin-page-header">
                         <div>
                             <div class="eyebrow">TALENT MANAGEMENT</div>
-                            <h1>actorS</h1>
+                            <h1>ACTORS</h1>
                             <p>Add, edit and manage StarReach actors.</p>
                         </div>
-                        <button type="button" class="btn btn-primary" data-actor-action="add">+ Add actor</button>
+                        <button type="button" class="btn btn-primary" data-actor-action="add">+ Add Actor</button>
                     </div>
                     <div class="admin-card">
                         <div class="table-wrap">
@@ -523,7 +488,7 @@ async function loadAdmin() {
                                 <tbody>
                                     ${actors.length ? actors.map(actor => `
                                         <tr>
-                                            <td><img class="admin-actor-image" src="${escapeHtml(actor.image || '/images/placeholder.jpg')}" alt="${escapeHtml(actor.name || 'actor')}" onerror="this.onerror=null;this.src='/images/placeholder.jpg';"></td>
+                                            <td><img class="admin-actor-image" src="${escapeHtml(actor.image || '/images/placeholder.jpg')}" alt="${escapeHtml(actor.name || 'Actor')}" onerror="this.onerror=null;this.src='/images/placeholder.jpg';"></td>
                                             <td><strong>${escapeHtml(actor.name || '')}</strong></td>
                                             <td>${escapeHtml(actor.category || '')}</td>
                                             <td>${escapeHtml(actor.role || '')}</td>
@@ -549,7 +514,7 @@ async function loadAdmin() {
                     <div class="admin-card">
                         <div class="table-wrap">
                             <table class="admin-table">
-                                <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Registered</th></tr></thead>
+                                <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Company</th><th>Registered</th><th>Actions</th></tr></thead>
                                 <tbody>
                                     ${clients.length ? clients.map(client => `
                                         <tr>
@@ -558,7 +523,13 @@ async function loadAdmin() {
                                             <td>${escapeHtml(client.phone || '')}</td>
                                             <td>${escapeHtml(client.company || '')}</td>
                                             <td>${formatDate(client.createdAt)}</td>
-                                        </tr>`).join('') : '<tr><td colspan="5">No registered clients found.</td></tr>'}
+                                            <td>
+                                                <div class="admin-actions">
+                                                    <button type="button" class="btn btn-sm btn-outline-light" data-client-action="reset" data-id="${client._id}">Reset Password</button>
+                                                    <button type="button" class="btn btn-sm btn-danger" data-client-action="delete" data-id="${client._id}">Delete</button>
+                                                </div>
+                                            </td>
+                                        </tr>`).join('') : '<tr><td colspan="6">No registered clients found.</td></tr>'}
                                 </tbody>
                             </table>
                         </div>
@@ -572,14 +543,14 @@ async function loadAdmin() {
                     <div class="admin-card">
                         <div class="table-wrap">
                             <table class="admin-table">
-                                <thead><tr><th>Client</th><th>actor</th><th>Section</th><th>Event Date</th><th>Status</th><th>Update</th></tr></thead>
+                                <thead><tr><th>Client</th><th>Actor</th><th>Section</th><th>Event Date</th><th>Status</th><th>Update</th></tr></thead>
                                 <tbody>
                                     ${bookings.length ? bookings.map(booking => {
                                         const clientName = `${booking.client?.firstName || ''} ${booking.client?.lastName || ''}`.trim() || 'Client';
                                         const status = String(booking.status || 'pending').toLowerCase();
                                         return `<tr>
                                             <td><strong>${escapeHtml(clientName)}</strong><small>${escapeHtml(booking.client?.email || '')}</small></td>
-                                            <td>${escapeHtml(booking.actor?.name || 'Unknown actor')}</td>
+                                            <td>${escapeHtml(booking.actor?.name || 'Unknown Actor')}</td>
                                             <td>${escapeHtml(booking.section || 'Booking')}</td>
                                             <td>${formatDate(booking.eventDate)}</td>
                                             <td><span class="status-badge ${status}">${escapeHtml(status)}</span></td>
@@ -612,15 +583,12 @@ async function loadAdmin() {
             </section>
         </div>`;
 
-        // 4. Navigation (event delegation - survives view.innerHTML re-renders)
         view.onclick = async function (event) {
             const sectionButton = event.target.closest('[data-admin-section]');
             if (sectionButton) {
                 const section = sectionButton.dataset.adminSection;
-
                 view.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
                 view.querySelector(`#admin-${section}`)?.classList.add('active');
-
                 view.querySelectorAll('.admin-menu-item').forEach(el => el.classList.remove('active'));
                 view.querySelector(`.admin-menu-item[data-admin-section="${section}"]`)?.classList.add('active');
                 return;
@@ -634,6 +602,40 @@ async function loadAdmin() {
                 }
             }
 
+            const clientButton = event.target.closest('[data-client-action]');
+            if (clientButton) {
+                const clientAction = clientButton.dataset.clientAction;
+                const clientId = clientButton.dataset.id;
+                if (!clientId) return;
+
+                if (clientAction === 'delete') {
+                    const confirmed = window.confirm('Delete this client permanently?');
+                    if (!confirmed) return;
+                    try {
+                        await api(`/admin/clients/${clientId}`, { method: 'DELETE' });
+                        toast('Client deleted successfully');
+                        await loadAdmin();
+                    } catch (error) {
+                        console.error('Delete client error:', error);
+                        toast(error.message || 'Unable to delete client');
+                    }
+                    return;
+                }
+
+                if (clientAction === 'reset') {
+                    const confirmed = window.confirm('Send a password reset to this client?');
+                    if (!confirmed) return;
+                    try {
+                        await api(`/admin/clients/${clientId}/reset-password`, { method: 'POST' });
+                        toast('Reset email sent to client');
+                    } catch (error) {
+                        console.error('Reset password error:', error);
+                        toast(error.message || 'Unable to reset password');
+                    }
+                    return;
+                }
+            }
+
             const actorButton = event.target.closest('[data-actor-action]');
             if (!actorButton) return;
 
@@ -641,14 +643,14 @@ async function loadAdmin() {
             const actorId = actorButton.dataset.id;
 
             if (actorAction === 'add') {
-                openactorModal();
+                openActorModal();
                 return;
             }
 
             if (actorAction === 'edit' && actorId) {
                 try {
                     const actor = await api(`/actors/${actorId}`);
-                    openactorModal(actor);
+                    openActorModal(actor);
                 } catch (error) {
                     console.error('Unable to load actor:', error);
                     toast(error.message || 'Unable to load actor');
@@ -659,10 +661,9 @@ async function loadAdmin() {
             if (actorAction === 'delete' && actorId) {
                 const confirmed = window.confirm('Are you sure you want to delete this actor?');
                 if (!confirmed) return;
-
                 try {
                     await api(`/actors/${actorId}`, { method: 'DELETE' });
-                    toast('actor deleted successfully');
+                    toast('Actor deleted successfully');
                     await loadAdmin();
                 } catch (error) {
                     console.error('Delete actor error:', error);
@@ -672,7 +673,6 @@ async function loadAdmin() {
             }
         };
 
-        // 5. Booking status updates
         view.onchange = async function (event) {
             const select = event.target.closest('.booking-status');
             if (!select) return;
@@ -686,7 +686,6 @@ async function loadAdmin() {
                     method: 'PATCH',
                     body: JSON.stringify({ status })
                 });
-
                 toast('Booking status updated successfully');
 
                 const row = select.closest('tr');
@@ -701,18 +700,17 @@ async function loadAdmin() {
             }
         };
 
-        // 6. Add/Edit actor modal (renders into #modalRoot, independent of #adminView)
-        function openactorModal(actor = null) {
+        function openActorModal(actor = null) {
             modalRoot.innerHTML = `
                 <div class="admin-modal" id="actorModal">
                     <div class="admin-modal-content">
-                        <button type="button" class="admin-modal-close" id="closeactorModal">&times;</button>
-                        <div class="eyebrow">actor MANAGEMENT</div>
-                        <h2>${actor ? 'Edit actor' : 'Add actor'}</h2>
+                        <button type="button" class="admin-modal-close" id="closeActorModal">&times;</button>
+                        <div class="eyebrow">ACTOR MANAGEMENT</div>
+                        <h2>${actor ? 'Edit Actor' : 'Add Actor'}</h2>
                         <form id="actorForm">
                             <input type="hidden" id="actorId" value="${actor?._id || ''}">
 
-                            <label>actor Name
+                            <label>Actor Name
                                 <input type="text" id="actorName" required value="${escapeHtml(actor?.name || '')}">
                             </label>
 
@@ -733,22 +731,20 @@ async function loadAdmin() {
                             </label>
 
                             <label>
-                                actor Image
+                                Actor Image
                                 <input type="file" id="actorImageFile" accept="image/jpeg,image/png,image/webp">
                                 <small class="image-help">JPG, PNG or WebP. Maximum 5MB.</small>
                                 <div id="actorImagePreview" class="actor-image-preview">
                                     ${actor?.image
-                                        ? `<img src="${escapeHtml(actor.image)}" alt="${escapeHtml(actor.name || 'actor')}">`
+                                        ? `<img src="${escapeHtml(actor.image)}" alt="${escapeHtml(actor.name || 'Actor')}">`
                                         : '<span>No image selected</span>'}
                                 </div>
                             </label>
 
                             <label class="checkbox-label">
                                 <input type="checkbox" id="actorFeatured" ${actor?.featured !== false ? 'checked' : ''}>
-                                Featured actor
+                                Featured Actor
                             </label>
-
-                            <p class="sub">Note: manager contact info is no longer set here — edit the MANAGER_DIRECTORY object near the top of app.js instead.</p>
 
                             <div class="price-section">
                                 <div class="price-section-header">
@@ -759,8 +755,8 @@ async function loadAdmin() {
                             </div>
 
                             <div class="form-actions">
-                                <button type="button" class="btn btn-outline-light" id="cancelactorBtn">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Save actor</button>
+                                <button type="button" class="btn btn-outline-light" id="cancelActorBtn">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Actor</button>
                             </div>
 
                             <div class="price-section">
@@ -789,8 +785,6 @@ async function loadAdmin() {
             const pricesContainer = $('#actorPrices');
             const actorImageFile = $('#actorImageFile');
             const actorImagePreview = $('#actorImagePreview');
-
-            // Existing image url (kept if the admin doesn't pick a new file)
             const existingImageUrl = actor?.image || '';
 
             function addPriceRow(price = {}) {
@@ -839,12 +833,12 @@ async function loadAdmin() {
                 reader.readAsDataURL(file);
             });
 
-            function closeactorModal() {
+            function closeActorModal() {
                 modalRoot.innerHTML = '';
             }
 
-            $('#closeactorModal').addEventListener('click', closeactorModal);
-            $('#cancelactorBtn').addEventListener('click', closeactorModal);
+            $('#closeActorModal').addEventListener('click', closeActorModal);
+            $('#cancelActorBtn').addEventListener('click', closeActorModal);
 
             form.addEventListener('submit', async event => {
                 event.preventDefault();
@@ -877,8 +871,8 @@ async function loadAdmin() {
                     whatsapp: $('#managerWhatsapp').value.trim()
                 };
 
-                if (!name) { toast('actor name is required'); return; }
-                if (!category) { toast('actor category is required'); return; }
+                if (!name) { toast('Actor name is required'); return; }
+                if (!category) { toast('Actor category is required'); return; }
 
                 const formData = new FormData();
                 formData.append('name', name);
@@ -896,33 +890,30 @@ async function loadAdmin() {
                 }
 
                 const saveButton = form.querySelector('button[type="submit"]');
-                const originalText = saveButton ? saveButton.textContent : 'Save actor';
+                const originalText = saveButton ? saveButton.textContent : 'Save Actor';
 
                 if (saveButton) {
                     saveButton.disabled = true;
-                    saveButton.textContent = imageFile ? 'Uploading Image...' : 'Saving actor...';
+                    saveButton.textContent = imageFile ? 'Uploading Image...' : 'Saving Actor...';
                 }
 
                 try {
-                    let savedactor;
+                    let savedActor;
 
                     if (actorId) {
-                        savedactor = await api(`/actors/${actorId}`, { method: 'PUT', body: formData });
-                        toast('actor updated successfully');
+                        savedActor = await api(`/actors/${actorId}`, { method: 'PUT', body: formData });
+                        toast('Actor updated successfully');
                     } else {
-                        savedactor = await api('/actors', { method: 'POST', body: formData });
-                        toast('actor added successfully');
+                        savedActor = await api('/actors', { method: 'POST', body: formData });
+                        toast('Actor added successfully');
                     }
 
-                    console.log('actor saved:', savedactor);
-                    
-                    // Refresh the admin view to show the updated list of actors
-                    closeactorModal();
+                    closeActorModal();
                     await loadAdmin();
-                    if (savedactor?._id && !document.querySelector(`[data-id="${savedactor._id}"]`)) {
+                    if (savedActor?._id && !document.querySelector(`[data-id="${savedActor._id}"]`)) {
                         await new Promise(resolve => setTimeout(resolve, 500));
                         await loadAdmin();
-                    } 
+                    }
                 } catch (error) {
                     console.error('Save actor error:', error);
                     toast(error.message || 'Unable to save actor');
@@ -937,7 +928,6 @@ async function loadAdmin() {
 
     } catch (error) {
         console.error('Admin dashboard error:', error);
-
         view.innerHTML = `
             <div class="admin-error">
                 <h2>Unable to load Admin Dashboard</h2>
@@ -984,9 +974,8 @@ function init() {
         q.onclick = () => q.nextElementSibling?.classList.toggle('open');
     });
 
-    // Load only the page that is currently being viewed
-    if (document.querySelector('#actorGrid')) loadactors();
-    if (document.querySelector('#actorProfile')) loadactorProfile();
+    if (document.querySelector('#actorGrid')) loadActors();
+    if (document.querySelector('#actorProfile')) loadActorProfile();
     if (document.querySelector('#clientView')) loadClient();
     if (document.querySelector('#adminView')) loadAdmin();
 }

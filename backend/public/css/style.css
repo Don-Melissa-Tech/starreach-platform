@@ -323,13 +323,13 @@ header{
     line-height:1.6;
     font-size:.9rem
 }
-.artist-grid{
+.actor-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(220px,260px));
     justify-content:center;
     gap:24px
 }
-.artist-card{
+.actor-card{
     background:var(--ink2);
     border:1px solid var(--line);
     border-radius:7px;
@@ -338,31 +338,31 @@ header{
     transform:translateX(60px);
     transition:opacity .6s ease-out, transform .6s ease-out, box-shadow .3s ease
 }
-.artist-card.visible{
+.actor-card.visible{
     opacity:1;
     transform:translateX(0)
 }
-.artist-card:hover{
+.actor-card:hover{
     transform:translateY(-8px);
     box-shadow:0 15px 35px rgba(0,0,0,.25)
 }
-.artist-img{
+.actor-img{
     height:200px;
     position:relative;
     overflow:hidden;
     display:block;
 }
-.artist-img img{
+.actor-img img{
     width:100%;
     height:100%;
     object-fit:cover;
     transition:.5s;
     object-position:top;
 }
-.artist-card:hover img{
+.actor-card:hover img{
     transform:scale(1.06)
 }
-.artist-img .category{
+.actor-img .category{
     position:absolute;
     top:15px;
     right:15px;
@@ -372,32 +372,32 @@ header{
     border-radius:20px;
     font:600 .62rem 'IBM Plex Mono'
 }
-.artist-body{
+.actor-body{
     padding:20px
 }
-.artist-body h3{
+.actor-body h3{
     font-size:1.25rem;
     color:var(--cream);
     margin-bottom:6px
 }
-.artist-body .role{
+.actor-body .role{
     color:var(--gold);
     font:600 .7rem 'IBM Plex Mono'
 }
-.artist-body p{
+.actor-body p{
     color:var(--muted);
     font-size:.85rem;
     line-height:1.55;
     min-height:53px
 }
-.artist-foot{
+.actor-foot{
     display:flex;
     justify-content:space-between;
     align-items:center;
     border-top:1px solid var(--line);
     padding-top:15px
 }
-.artist-foot small{
+.actor-foot small{
     color:var(--muted)
 }
 .steps{
@@ -784,7 +784,7 @@ footer{
     .hamburger{
         display:block
     }
-    .services-grid,.artist-grid{
+    .services-grid,.actor-grid{
         grid-template-columns:repeat(2,1fr)
     }
     .stats{
@@ -973,35 +973,35 @@ footer{
 }
 
 /* =========================================================
-   ARTIST ADMIN CARDS
+   ACTOR ADMIN CARDS
    ========================================================= */
 
-.artist-admin-grid {
+.actor-admin-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 22px;
 }
 
-.artist-admin-card {
+.actor-admin-card {
     border: 1px solid #ddd;
     background: #fff;
     overflow: hidden;
     transition: transform .2s ease, box-shadow .2s ease;
 }
 
-.artist-admin-card:hover {
+.actor-admin-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 10px 30px rgba(0,0,0,.08);
 }
 
-.artist-admin-card > img {
+.actor-admin-card > img {
     display: block;
     width: 100%;
     height: 260px;
     object-fit: cover;
     object-position: top;
 }
-.admin-artist-image {
+.admin-actor-image {
     display: block;
     width: 56px;
     height: 56px;
@@ -1010,16 +1010,16 @@ footer{
     border: 1px solid var(--line2);
 }
 
-.artist-admin-info {
+.actor-admin-info {
     padding: 20px;
 }
 
-.artist-admin-info h3 {
+.actor-admin-info h3 {
     margin: 0 0 8px;
     font-size: 20px;
 }
 
-.artist-admin-info p {
+.actor-admin-info p {
     margin: 5px 0;
     color: #666;
 }
@@ -1670,36 +1670,26 @@ footer{
 
 }
 
-.artist-image-preview {
+.actor-image-preview {
     width: 180px;
     height: 180px;
-
     margin-top: 12px;
-
     border: 2px dashed #d8d8d8;
     border-radius: 12px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     overflow: hidden;
-
     background: #f7f7f7;
-
     color: #777;
     object-position: top;
-
     font-size: 13px;
 }
 
-
-.artist-image-preview img {
+.actor-image-preview img {
     width: 100%;
     height: 100%;
-
     object-fit: cover;
-
     display: block;
 }
 
