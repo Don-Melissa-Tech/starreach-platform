@@ -60,7 +60,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', require('./src/routes/auth'));
 
-app.use('/api/artists', require('./src/routes/artists'));
+app.use('/api/actors', require('./src/routes/actors'));
 
 app.use('/api/bookings', require('./src/routes/bookings'));
 
