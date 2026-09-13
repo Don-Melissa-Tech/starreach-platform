@@ -4,8 +4,8 @@ const bookingSchema=new mongoose.Schema({
     ref:'User',
     required:true
   },
-  artist:{type:mongoose.Schema.Types.ObjectId,
-    ref:'Artist',
+  actor:{type:mongoose.Schema.Types.ObjectId,
+    ref:'Actor',
     required:true
   },
   section:{type:String,
