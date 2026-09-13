@@ -12,10 +12,10 @@ const managerSchema=new mongoose.Schema({
 },
 {_id:false});
 
-const artistSchema=new mongoose.Schema({
+const actorSchema=new mongoose.Schema({
     name:{type:String,required:true},
     category:{type:String,required:true},role:String,bio:String,image:String,location:String,
     featured:{type:Boolean,default:true},prices:[priceSchema],manager:managerSchema
 },
 {timestamps:true});
-module.exports=mongoose.model('Artist',artistSchema);
+module.exports=mongoose.model('actor',actorSchema);

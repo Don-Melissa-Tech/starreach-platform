@@ -2,12 +2,12 @@ const router = require('express').Router();
 const multer = require('multer');
 const streamifier = require('streamifier');
 
-const Artist = require('../models/Artist');
+const actor = require('../models/Actor');
 const cloudinary = require('../config/cloudinary');
 const { protect, adminOnly, optionalAuth } = require('../middleware/auth');
 
-function stripManagerIfAnonymous(artistDoc, req) {
-    const obj = artistDoc.toObject ? artistDoc.toObject() : artistDoc;
+function stripManagerIfAnonymous(actorDoc, req) {
+    const obj = actorDoc.toObject ? actorDoc.toObject() : actorDoc;
     if (!req.user) {
         delete obj.manager;
     }
@@ -52,7 +52,7 @@ const upload = multer({
 function uploadToCloudinary(buffer) {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-            { folder: 'starreach/artists' },
+            { folder: 'starreach/actors' },
             (error, result) => {
                 if (error) return reject(error);
                 resolve(result);
@@ -63,7 +63,7 @@ function uploadToCloudinary(buffer) {
 }
 
 // =====================================================
-// GET ALL ARTISTS
+// GET ALL actorS
 // =====================================================
 
 router.get('/', optionalAuth, async (req, res) => {
@@ -72,29 +72,29 @@ router.get('/', optionalAuth, async (req, res) => {
         if (req.query.category) q.category = req.query.category;
         if (req.query.featured === 'true') q.featured = true;
 
-        const artists = await Artist.find(q).sort({ featured: -1, name: 1 });
-        res.json(artists);
+        const actors = await actor.find(q).sort({ featured: -1, name: 1 });
+        res.json(actors);
     } catch (e) {
         res.status(500).json({ message: e.message });
     }
 });
 
 // =====================================================
-// GET ONE ARTIST
+// GET ONE actor
 // =====================================================
 
 router.get('/:id', optionalAuth, async (req, res) => {
     try {
-        const artist = await Artist.findById(req.params.id);
-        if (!artist) return res.status(404).json({ message: 'Artist not found' });
-        res.json(artist);
+        const actor = await actor.findById(req.params.id);
+        if (!actor) return res.status(404).json({ message: 'actor not found' });
+        res.json(actor);
     } catch (e) {
-        res.status(400).json({ message: 'Invalid artist id' });
+        res.status(400).json({ message: 'Invalid actor id' });
     }
 });
 
 // =====================================================
-// ADD ARTIST
+// ADD actor
 // =====================================================
 
 router.post('/', protect, adminOnly, upload.single('image'), async (req, res) => {
@@ -102,7 +102,7 @@ router.post('/', protect, adminOnly, upload.single('image'), async (req, res) =>
         const { name, category, role, bio, location, featured, prices, manager } = req.body;
 
         if (!name || !category) {
-            return res.status(400).json({ message: 'Artist name and category are required' });
+            return res.status(400).json({ message: 'actor name and category are required' });
         }
 
         let parsedPrices = [];
@@ -127,7 +127,7 @@ router.post('/', protect, adminOnly, upload.single('image'), async (req, res) =>
             image = result.secure_url;
         }
 
-        const artist = await Artist.create({
+        const actor = await actor.create({
             name: name.trim(),
             category: category.trim(),
             role: role?.trim() || '',
@@ -139,25 +139,25 @@ router.post('/', protect, adminOnly, upload.single('image'), async (req, res) =>
             manager: parsedManager
         });
 
-        res.status(201).json(artist);
+        res.status(201).json(actor);
     } catch (e) {
         res.status(400).json({ message: e.message });
     }
 });
 
 // =====================================================
-// EDIT ARTIST
+// EDIT actor
 // =====================================================
 
 router.put('/:id', protect, adminOnly, upload.single('image'), async (req, res) => {
     try {
-        const artist = await Artist.findById(req.params.id);
-        if (!artist) return res.status(404).json({ message: 'Artist not found' });
+        const actor = await actor.findById(req.params.id);
+        if (!actor) return res.status(404).json({ message: 'actor not found' });
 
         const { name, category, role, bio, location, featured, prices, manager } = req.body;
 
         if (!name || !category) {
-            return res.status(400).json({ message: 'Artist name and category are required' });
+            return res.status(400).json({ message: 'actor name and category are required' });
         }
 
         let parsedPrices = [];
@@ -168,10 +168,10 @@ router.put('/:id', protect, adminOnly, upload.single('image'), async (req, res) 
                 return res.status(400).json({ message: 'Invalid prices data' });
             }
         } else {
-            parsedPrices = artist.prices || [];
+            parsedPrices = actor.prices || [];
         }
 
-        let parsedManager = artist.manager;
+        let parsedManager = actor.manager;
         if (manager !== undefined) {
             try {
                 parsedManager = parseManagerInput(manager);
@@ -180,38 +180,38 @@ router.put('/:id', protect, adminOnly, upload.single('image'), async (req, res) 
             }
         }
 
-        artist.name = name.trim();
-        artist.category = category.trim();
-        artist.role = role?.trim() || '';
-        artist.bio = bio?.trim() || '';
-        artist.location = location?.trim() || '';
-        artist.featured = featured === 'true' || featured === true;
-        artist.prices = parsedPrices;
-        artist.manager = parsedManager;
+        actor.name = name.trim();
+        actor.category = category.trim();
+        actor.role = role?.trim() || '';
+        actor.bio = bio?.trim() || '';
+        actor.location = location?.trim() || '';
+        actor.featured = featured === 'true' || featured === true;
+        actor.prices = parsedPrices;
+        actor.manager = parsedManager;
 
         if (req.file) {
             const result = await uploadToCloudinary(req.file.buffer);
-            artist.image = result.secure_url;
+            actor.image = result.secure_url;
         }
 
-        await artist.save();
-        res.json(artist);
+        await actor.save();
+        res.json(actor);
     } catch (e) {
         res.status(400).json({ message: e.message });
     }
 });
 
 // =====================================================
-// DELETE ARTIST
+// DELETE actor
 // =====================================================
 
 router.delete('/:id', protect, adminOnly, async (req, res) => {
     try {
-        const artist = await Artist.findById(req.params.id);
-        if (!artist) return res.status(404).json({ message: 'Artist not found' });
+        const actor = await actor.findById(req.params.id);
+        if (!actor) return res.status(404).json({ message: 'actor not found' });
 
-        await Artist.findByIdAndDelete(req.params.id);
-        res.json({ message: 'Artist deleted successfully' });
+        await actor.findByIdAndDelete(req.params.id);
+        res.json({ message: 'actor deleted successfully' });
     } catch (e) {
         res.status(500).json({ message: e.message });
     }

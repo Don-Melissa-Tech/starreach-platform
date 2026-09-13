@@ -1716,7 +1716,7 @@ footer{
 .hero-slide-layer {
     position: absolute;
     inset: 0;
-    background-size: 95%;
+    background-size: 100%;
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0;

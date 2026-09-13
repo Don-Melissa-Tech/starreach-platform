@@ -104,7 +104,7 @@ function authModal(type = 'login') {
 
     modal(`<button class="close" id="closeModal">&times;</button>
         <h2>${login ? 'Welcome Back' : 'Create Account'}</h2>
-        <p class="sub">${login ? 'Sign in to manage your bookings' : 'Join StarReach and book your preferred artist'}</p>
+        <p class="sub">${login ? 'Sign in to manage your bookings' : 'Join StarReach and book your preferred actor'}</p>
         ${login ? `
         <form id="loginForm">
             <div class="field"><label>Email</label>
@@ -172,7 +172,7 @@ function authModal(type = 'login') {
 // ---------------------------------------------------------------------
 // MANAGER CONTACT DIRECTORY — edit this by hand, no backend/API involved.
 //
-// Add one entry per artist, keyed by the artist's exact name as it
+// Add one entry per actor, keyed by the actor's exact name as it
 // appears on the site (case-sensitive, must match exactly). Any field
 // left blank will just show as "Not available" in the booking modal.
 // WhatsApp can be left blank if it's the same as the phone number.
@@ -199,36 +199,36 @@ const MANAGER_DIRECTORY = {
 };
 
 // Booking is no longer self-service: a visitor must have an account before
-// they can see any manager contact details, and each artist has their own
+// they can see any manager contact details, and each actor has their own
 // manager, looked up locally from MANAGER_DIRECTORY above.
-function bookingModal(artist) {
+function bookingModal(actor) {
     if (!state.token) {
         authModal('register');
-        toast('Create a free account first to see how to book this artist');
+        toast('Create a free account first to see how to book this actor');
         return;
     }
 
-    const manager = artist.manager;
+    const manager = actor.manager;
     const hasManagerInfo = manager && (manager.name || manager.email || manager.phone || manager.whatsapp);
 
     if (hasManagerInfo) {
-        renderManagerContact(artist, manager);
+        renderManagerContact(actor, manager);
     } else {
-        renderManagerError(artist, {
-            message: `Manager contact details for ${artist.name} haven't been added yet. Check back later or contact support.`
+        renderManagerError(actor, {
+            message: `Manager contact details for ${actor.name} haven't been added yet. Check back later or contact support.`
         });
     }
 }
 
-function renderManagerContact(artist, manager) {
+function renderManagerContact(actor, manager) {
     const phone = manager?.phone || '';
     //const whatsappDigits = manager?.whatsapp || '';
     const whatsappRaw = manager?.whatsapp || phone;
     const whatsappDigits = whatsappRaw.replace(/[^\d+]/g, '').replace(/^\+/, '');
 
     modal(`<button class="close" id="closeModal">&times;</button>
-        <h2>Book ${escapeHtml(artist.name)}</h2>
-        <p class="sub">Bookings for ${escapeHtml(artist.name)} are arranged directly with their manager.
+        <h2>Book ${escapeHtml(actor.name)}</h2>
+        <p class="sub">Bookings for ${escapeHtml(actor.name)} are arranged directly with their manager.
         Reach out using the details below to continue your booking manually.</p>
         <div class="manager-card">
             <p><strong>Manager:</strong> ${escapeHtml(manager?.name || 'Not available')}</p>
@@ -242,36 +242,36 @@ function renderManagerContact(artist, manager) {
                 ? `<a href="https://wa.me/${whatsappDigits}" target="_blank" rel="noopener">Chat on WhatsApp</a>`
                 : 'Not available'}</p>
         </div>
-        <p class="sub">When you reach out, mention ${escapeHtml(artist.name)}'s name, your event date and the event type.</p>`);
+        <p class="sub">When you reach out, mention ${escapeHtml(actor.name)}'s name, your event date and the event type.</p>`);
 
     $('#closeModal').onclick = () => $('#modalRoot').innerHTML = '';
 }
 
-function renderManagerError(artist, err) {
+function renderManagerError(actor, err) {
     modal(`<button class="close" id="closeModal">&times;</button>
-        <h2>Book ${escapeHtml(artist.name)}</h2>
+        <h2>Book ${escapeHtml(actor.name)}</h2>
         <p class="sub">${escapeHtml(err?.message || 'Unable to load manager contact details right now. Please try again shortly.')}</p>`);
     $('#closeModal').onclick = () => $('#modalRoot').innerHTML = '';
 }
 
-async function loadArtists() {
-    const grid = $('#artistGrid');
+async function loadactors() {
+    const grid = $('#actorGrid');
     if (!grid) return;
 
     try {
-        const artists = await api('/artists?featured=true');
+        const actors = await api('/actors?featured=true');
 
-        grid.innerHTML = artists.map(a => `
-            <article class="artist-card">
-                <a href="/artist.html?id=${a._id}" class="artist-img">
-                    <img src="${escapeHtml(a.image || '/images/artist-1.jpg')}" alt="${escapeHtml(a.name)}">
+        grid.innerHTML = actors.map(a => `
+            <article class="actor-card">
+                <a href="/actor.html?id=${a._id}" class="actor-img">
+                    <img src="${escapeHtml(a.image || '/images/actor-1.jpg')}" alt="${escapeHtml(a.name)}">
                     <span class="category">${escapeHtml(a.category)}</span>
                 </a>
-                <div class="artist-body">
+                <div class="actor-body">
                     <h3>${escapeHtml(a.name)}</h3>
                     <span class="role">${escapeHtml(a.role || a.category)}</span>
                     <p>${escapeHtml(a.bio || 'Professional StarReach talent available for events and appearances.')}</p>
-                    <div class="artist-foot">
+                    <div class="actor-foot">
                         <small>From USD ${Number(a.prices?.[0]?.price || 0).toLocaleString()}</small>
                         <button class="btn btn-gold btn-sm" data-book="${a._id}">Book</button>
                     </div>
@@ -281,22 +281,22 @@ async function loadArtists() {
             grid.querySelectorAll('[data-book]').forEach(b => {
                 b.onclick = e => {
                     e.preventDefault();
-                    const a = artists.find(x => x._id === b.dataset.book);
+                    const a = actors.find(x => x._id === b.dataset.book);
                     if (a) bookingModal(a);
                 };
             });
             // ^ bookingModal() itself checks for an account before revealing
             // anything, so no extra guard is needed here.
 
-            revealArtistCards(grid);
+            revealactorCards(grid);
         } catch (e) {
-            grid.innerHTML = '<div class="loading">Unable to load artists. Check the backend connection.</div>';
+            grid.innerHTML = '<div class="loading">Unable to load actors. Check the backend connection.</div>';
         }
     }
 
-    // Slide each artist card in from the right as it scrolls into view.
-    function revealArtistCards(grid) {
-        const cards = grid.querySelectorAll('.artist-card');
+    // Slide each actor card in from the right as it scrolls into view.
+    function revealactorCards(grid) {
+        const cards = grid.querySelectorAll('.actor-card');
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
@@ -311,18 +311,18 @@ async function loadArtists() {
         cards.forEach((card) => observer.observe(card));
     }
 
-async function loadArtistProfile() {
-    const box = $('#artistProfile');
+async function loadactorProfile() {
+    const box = $('#actorProfile');
     if (!box) return;
 
     const id = new URLSearchParams(location.search).get('id');
     if (!id) {
-        box.innerHTML = '<div class="loading">Artist not specified.</div>';
+        box.innerHTML = '<div class="loading">actor not specified.</div>';
         return;
     }
 
     try {
-        const a = await api('/artists/' + id);
+        const a = await api('/actors/' + id);
 
         box.innerHTML = `<div class="profile-card">
             <div><img class="profile-image" src="${escapeHtml(a.image)}" alt="${escapeHtml(a.name)}"></div>
@@ -348,7 +348,7 @@ async function loadArtistProfile() {
             b.onclick = () => bookingModal(a);
         });
     } catch (e) {
-        box.innerHTML = '<div class="loading">Artist not found.</div>';
+        box.innerHTML = '<div class="loading">actor not found.</div>';
     }
 }
 
@@ -373,7 +373,7 @@ async function loadClient() {
                 <h1>Welcome, ${escapeHtml(state.user.firstName)}</h1>
                 <p>${escapeHtml(state.user.email)} ${state.user.phone ? '· ' + escapeHtml(state.user.phone) : ''}</p>
             </div>
-            <a class="btn btn-gold" href="/#talent">Book Another Artist</a>
+            <a class="btn btn-gold" href="/#talent">Book Another actor</a>
         </div>
         <div class="panel">
             <h2>Profile Information</h2>
@@ -385,10 +385,10 @@ async function loadClient() {
             <h2>My Booking Requests</h2>
             ${bookings.length ? `
             <table class="table">
-                <thead><tr><th>Artist</th><th>Section</th><th>Event</th><th>Date</th><th>Status</th></tr></thead>
+                <thead><tr><th>actor</th><th>Section</th><th>Event</th><th>Date</th><th>Status</th></tr></thead>
                 <tbody>${bookings.map(b => `
                     <tr>
-                        <td>${escapeHtml(b.artist?.name || '—')}</td>
+                        <td>${escapeHtml(b.actor?.name || '—')}</td>
                         <td>${escapeHtml(b.section)}</td>
                         <td>${escapeHtml(b.eventType)}</td>
                         <td>${formatDate(b.eventDate)}</td>
@@ -428,9 +428,9 @@ async function loadAdmin() {
         }
 
         // 2. Load admin data
-        const [stats, artists, bookings, clients] = await Promise.all([
+        const [stats, actors, bookings, clients] = await Promise.all([
             api('/admin/stats'),
-            api('/artists'),
+            api('/actors'),
             api('/bookings'),
             api('/admin/clients')
         ]);
@@ -445,7 +445,7 @@ async function loadAdmin() {
                 </div>
                 <nav class="admin-menu">
                     <button type="button" class="admin-menu-item active" data-admin-section="overview">📊 Dashboard</button>
-                    <button type="button" class="admin-menu-item" data-admin-section="artists">🎤 Artists</button>
+                    <button type="button" class="admin-menu-item" data-admin-section="actors">🎤 actors</button>
                     <button type="button" class="admin-menu-item" data-admin-section="clients">👥 Clients</button>
                     <button type="button" class="admin-menu-item" data-admin-section="bookings">📅 Bookings</button>
                     <button type="button" class="admin-menu-item" data-admin-section="settings">⚙️ Settings</button>
@@ -459,13 +459,13 @@ async function loadAdmin() {
                         <div>
                             <div class="eyebrow">ADMIN CONTROL CENTER</div>
                             <h1>STARREACH DASHBOARD</h1>
-                            <p>Welcome back, ${escapeHtml(currentUser.firstName || 'Administrator')}. Manage your artists, clients and bookings.</p>
+                            <p>Welcome back, ${escapeHtml(currentUser.firstName || 'Administrator')}. Manage your actors, clients and bookings.</p>
                         </div>
                     </div>
 
                     <div class="admin-stats">
                         <div class="admin-stat"><strong>${stats?.clients ?? clients.length}</strong><span>Clients</span></div>
-                        <div class="admin-stat"><strong>${stats?.artists ?? artists.length}</strong><span>Artists</span></div>
+                        <div class="admin-stat"><strong>${stats?.actors ?? actors.length}</strong><span>actors</span></div>
                         <div class="admin-stat"><strong>${stats?.bookings ?? bookings.length}</strong><span>Bookings</span></div>
                         <div class="admin-stat"><strong>${stats?.pending ?? 0}</strong><span>Pending</span></div>
                     </div>
@@ -475,7 +475,7 @@ async function loadAdmin() {
                             <div><div class="eyebrow">QUICK ACTIONS</div><h2>MANAGEMENT</h2></div>
                         </div>
                         <div class="admin-quick-actions">
-                            <button type="button" class="btn btn-primary" data-admin-section="artists">🎤 Manage Artists</button>
+                            <button type="button" class="btn btn-primary" data-admin-section="actors">🎤 Manage actors</button>
                             <button type="button" class="btn btn-outline-light" data-admin-section="clients">👥 View Clients</button>
                             <button type="button" class="btn btn-outline-light" data-admin-section="bookings">📅 Manage Bookings</button>
                         </div>
@@ -488,14 +488,14 @@ async function loadAdmin() {
                         </div>
                         <div class="table-wrap">
                             <table class="admin-table">
-                                <thead><tr><th>Client</th><th>Artist</th><th>Section</th><th>Event Date</th><th>Status</th></tr></thead>
+                                <thead><tr><th>Client</th><th>actor</th><th>Section</th><th>Event Date</th><th>Status</th></tr></thead>
                                 <tbody>
                                     ${bookings.length ? bookings.slice(0, 5).map(booking => {
                                         const clientName = `${booking.client?.firstName || ''} ${booking.client?.lastName || ''}`.trim() || 'Client';
                                         const status = String(booking.status || 'pending').toLowerCase();
                                         return `<tr>
                                             <td><strong>${escapeHtml(clientName)}</strong><small>${escapeHtml(booking.client?.email || '')}</small></td>
-                                            <td>${escapeHtml(booking.artist?.name || 'Unknown Artist')}</td>
+                                            <td>${escapeHtml(booking.actor?.name || 'Unknown actor')}</td>
                                             <td>${escapeHtml(booking.section || 'Booking')}</td>
                                             <td>${formatDate(booking.eventDate)}</td>
                                             <td><span class="status-badge ${status}">${escapeHtml(status)}</span></td>
@@ -507,35 +507,35 @@ async function loadAdmin() {
                     </div>
                 </div>
 
-                <div class="admin-section" id="admin-artists">
+                <div class="admin-section" id="admin-actors">
                     <div class="admin-page-header">
                         <div>
                             <div class="eyebrow">TALENT MANAGEMENT</div>
-                            <h1>ARTISTS</h1>
-                            <p>Add, edit and manage StarReach artists.</p>
+                            <h1>actorS</h1>
+                            <p>Add, edit and manage StarReach actors.</p>
                         </div>
-                        <button type="button" class="btn btn-primary" data-artist-action="add">+ Add Artist</button>
+                        <button type="button" class="btn btn-primary" data-actor-action="add">+ Add actor</button>
                     </div>
                     <div class="admin-card">
                         <div class="table-wrap">
                             <table class="admin-table">
                                 <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Role</th><th>Location</th><th>Featured</th><th>Actions</th></tr></thead>
                                 <tbody>
-                                    ${artists.length ? artists.map(artist => `
+                                    ${actors.length ? actors.map(actor => `
                                         <tr>
-                                            <td><img class="admin-artist-image" src="${escapeHtml(artist.image || '/images/placeholder.jpg')}" alt="${escapeHtml(artist.name || 'Artist')}" onerror="this.onerror=null;this.src='/images/placeholder.jpg';"></td>
-                                            <td><strong>${escapeHtml(artist.name || '')}</strong></td>
-                                            <td>${escapeHtml(artist.category || '')}</td>
-                                            <td>${escapeHtml(artist.role || '')}</td>
-                                            <td>${escapeHtml(artist.location || '')}</td>
-                                            <td>${artist.featured ? '<span class="status-badge confirmed">YES</span>' : '<span class="status-badge cancelled">NO</span>'}</td>
+                                            <td><img class="admin-actor-image" src="${escapeHtml(actor.image || '/images/placeholder.jpg')}" alt="${escapeHtml(actor.name || 'actor')}" onerror="this.onerror=null;this.src='/images/placeholder.jpg';"></td>
+                                            <td><strong>${escapeHtml(actor.name || '')}</strong></td>
+                                            <td>${escapeHtml(actor.category || '')}</td>
+                                            <td>${escapeHtml(actor.role || '')}</td>
+                                            <td>${escapeHtml(actor.location || '')}</td>
+                                            <td>${actor.featured ? '<span class="status-badge confirmed">YES</span>' : '<span class="status-badge cancelled">NO</span>'}</td>
                                             <td>
                                                 <div class="admin-actions">
-                                                    <button type="button" class="btn btn-sm btn-outline-light" data-artist-action="edit" data-id="${artist._id}">Edit</button>
-                                                    <button type="button" class="btn btn-sm btn-danger" data-artist-action="delete" data-id="${artist._id}">Delete</button>
+                                                    <button type="button" class="btn btn-sm btn-outline-light" data-actor-action="edit" data-id="${actor._id}">Edit</button>
+                                                    <button type="button" class="btn btn-sm btn-danger" data-actor-action="delete" data-id="${actor._id}">Delete</button>
                                                 </div>
                                             </td>
-                                        </tr>`).join('') : '<tr><td colspan="7">No artists found.</td></tr>'}
+                                        </tr>`).join('') : '<tr><td colspan="7">No actors found.</td></tr>'}
                                 </tbody>
                             </table>
                         </div>
@@ -572,14 +572,14 @@ async function loadAdmin() {
                     <div class="admin-card">
                         <div class="table-wrap">
                             <table class="admin-table">
-                                <thead><tr><th>Client</th><th>Artist</th><th>Section</th><th>Event Date</th><th>Status</th><th>Update</th></tr></thead>
+                                <thead><tr><th>Client</th><th>actor</th><th>Section</th><th>Event Date</th><th>Status</th><th>Update</th></tr></thead>
                                 <tbody>
                                     ${bookings.length ? bookings.map(booking => {
                                         const clientName = `${booking.client?.firstName || ''} ${booking.client?.lastName || ''}`.trim() || 'Client';
                                         const status = String(booking.status || 'pending').toLowerCase();
                                         return `<tr>
                                             <td><strong>${escapeHtml(clientName)}</strong><small>${escapeHtml(booking.client?.email || '')}</small></td>
-                                            <td>${escapeHtml(booking.artist?.name || 'Unknown Artist')}</td>
+                                            <td>${escapeHtml(booking.actor?.name || 'Unknown actor')}</td>
                                             <td>${escapeHtml(booking.section || 'Booking')}</td>
                                             <td>${formatDate(booking.eventDate)}</td>
                                             <td><span class="status-badge ${status}">${escapeHtml(status)}</span></td>
@@ -634,39 +634,39 @@ async function loadAdmin() {
                 }
             }
 
-            const artistButton = event.target.closest('[data-artist-action]');
-            if (!artistButton) return;
+            const actorButton = event.target.closest('[data-actor-action]');
+            if (!actorButton) return;
 
-            const artistAction = artistButton.dataset.artistAction;
-            const artistId = artistButton.dataset.id;
+            const actorAction = actorButton.dataset.actorAction;
+            const actorId = actorButton.dataset.id;
 
-            if (artistAction === 'add') {
-                openArtistModal();
+            if (actorAction === 'add') {
+                openactorModal();
                 return;
             }
 
-            if (artistAction === 'edit' && artistId) {
+            if (actorAction === 'edit' && actorId) {
                 try {
-                    const artist = await api(`/artists/${artistId}`);
-                    openArtistModal(artist);
+                    const actor = await api(`/actors/${actorId}`);
+                    openactorModal(actor);
                 } catch (error) {
-                    console.error('Unable to load artist:', error);
-                    toast(error.message || 'Unable to load artist');
+                    console.error('Unable to load actor:', error);
+                    toast(error.message || 'Unable to load actor');
                 }
                 return;
             }
 
-            if (artistAction === 'delete' && artistId) {
-                const confirmed = window.confirm('Are you sure you want to delete this artist?');
+            if (actorAction === 'delete' && actorId) {
+                const confirmed = window.confirm('Are you sure you want to delete this actor?');
                 if (!confirmed) return;
 
                 try {
-                    await api(`/artists/${artistId}`, { method: 'DELETE' });
-                    toast('Artist deleted successfully');
+                    await api(`/actors/${actorId}`, { method: 'DELETE' });
+                    toast('actor deleted successfully');
                     await loadAdmin();
                 } catch (error) {
-                    console.error('Delete artist error:', error);
-                    toast(error.message || 'Unable to delete artist');
+                    console.error('Delete actor error:', error);
+                    toast(error.message || 'Unable to delete actor');
                 }
                 return;
             }
@@ -701,51 +701,51 @@ async function loadAdmin() {
             }
         };
 
-        // 6. Add/Edit artist modal (renders into #modalRoot, independent of #adminView)
-        function openArtistModal(artist = null) {
+        // 6. Add/Edit actor modal (renders into #modalRoot, independent of #adminView)
+        function openactorModal(actor = null) {
             modalRoot.innerHTML = `
-                <div class="admin-modal" id="artistModal">
+                <div class="admin-modal" id="actorModal">
                     <div class="admin-modal-content">
-                        <button type="button" class="admin-modal-close" id="closeArtistModal">&times;</button>
-                        <div class="eyebrow">ARTIST MANAGEMENT</div>
-                        <h2>${artist ? 'Edit Artist' : 'Add Artist'}</h2>
-                        <form id="artistForm">
-                            <input type="hidden" id="artistId" value="${artist?._id || ''}">
+                        <button type="button" class="admin-modal-close" id="closeactorModal">&times;</button>
+                        <div class="eyebrow">actor MANAGEMENT</div>
+                        <h2>${actor ? 'Edit actor' : 'Add actor'}</h2>
+                        <form id="actorForm">
+                            <input type="hidden" id="actorId" value="${actor?._id || ''}">
 
-                            <label>Artist Name
-                                <input type="text" id="artistName" required value="${escapeHtml(artist?.name || '')}">
+                            <label>actor Name
+                                <input type="text" id="actorName" required value="${escapeHtml(actor?.name || '')}">
                             </label>
 
                             <label>Category
-                                <input type="text" id="artistCategory" required value="${escapeHtml(artist?.category || '')}" placeholder="Actor, Musician, Speaker...">
+                                <input type="text" id="actorCategory" required value="${escapeHtml(actor?.category || '')}" placeholder="Actor, Musician, Speaker...">
                             </label>
 
                             <label>Role
-                                <input type="text" id="artistRole" value="${escapeHtml(artist?.role || '')}" placeholder="Actor & Performer">
+                                <input type="text" id="actorRole" value="${escapeHtml(actor?.role || '')}" placeholder="Actor & Performer">
                             </label>
 
                             <label>Location
-                                <input type="text" id="artistLocation" value="${escapeHtml(artist?.location || '')}" placeholder="Lagos, Nigeria">
+                                <input type="text" id="actorLocation" value="${escapeHtml(actor?.location || '')}" placeholder="Lagos, Nigeria">
                             </label>
 
                             <label>Biography
-                                <textarea id="artistBio" rows="5" placeholder="Write a brief biography...">${escapeHtml(artist?.bio || '')}</textarea>
+                                <textarea id="actorBio" rows="5" placeholder="Write a brief biography...">${escapeHtml(actor?.bio || '')}</textarea>
                             </label>
 
                             <label>
-                                Artist Image
-                                <input type="file" id="artistImageFile" accept="image/jpeg,image/png,image/webp">
+                                actor Image
+                                <input type="file" id="actorImageFile" accept="image/jpeg,image/png,image/webp">
                                 <small class="image-help">JPG, PNG or WebP. Maximum 5MB.</small>
-                                <div id="artistImagePreview" class="artist-image-preview">
-                                    ${artist?.image
-                                        ? `<img src="${escapeHtml(artist.image)}" alt="${escapeHtml(artist.name || 'Artist')}">`
+                                <div id="actorImagePreview" class="actor-image-preview">
+                                    ${actor?.image
+                                        ? `<img src="${escapeHtml(actor.image)}" alt="${escapeHtml(actor.name || 'actor')}">`
                                         : '<span>No image selected</span>'}
                                 </div>
                             </label>
 
                             <label class="checkbox-label">
-                                <input type="checkbox" id="artistFeatured" ${artist?.featured !== false ? 'checked' : ''}>
-                                Featured Artist
+                                <input type="checkbox" id="actorFeatured" ${actor?.featured !== false ? 'checked' : ''}>
+                                Featured actor
                             </label>
 
                             <p class="sub">Note: manager contact info is no longer set here — edit the MANAGER_DIRECTORY object near the top of app.js instead.</p>
@@ -755,12 +755,12 @@ async function loadAdmin() {
                                     <div><div class="eyebrow">BOOKING SERVICES</div><h3>PRICES</h3></div>
                                     <button type="button" class="btn btn-sm btn-outline-light" id="addPriceBtn">+ Add Price</button>
                                 </div>
-                                <div id="artistPrices"></div>
+                                <div id="actorPrices"></div>
                             </div>
 
                             <div class="form-actions">
-                                <button type="button" class="btn btn-outline-light" id="cancelArtistBtn">Cancel</button>
-                                <button type="submit" class="btn btn-primary">Save Artist</button>
+                                <button type="button" class="btn btn-outline-light" id="cancelactorBtn">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save actor</button>
                             </div>
 
                             <div class="price-section">
@@ -769,29 +769,29 @@ async function loadAdmin() {
                                 </div>
                                 <p class="sub">Shown to signed-in visitors when they click Book. Leave blank if not available yet.</p>
                                 <label>Manager Name
-                                    <input type="text" id="managerName" value="${escapeHtml(artist?.manager?.name || '')}" placeholder="e.g. Melissa">
+                                    <input type="text" id="managerName" value="${escapeHtml(actor?.manager?.name || '')}" placeholder="e.g. Melissa">
                                 </label>
                                 <label>Manager Email
-                                    <input type="email" id="managerEmail" value="${escapeHtml(artist?.manager?.email || '')}" placeholder="manager@example.com">
+                                    <input type="email" id="managerEmail" value="${escapeHtml(actor?.manager?.email || '')}" placeholder="manager@example.com">
                                 </label>
                                 <label>Manager Phone
-                                    <input type="text" id="managerPhone" value="${escapeHtml(artist?.manager?.phone || '')}" placeholder="+2348012345678">
+                                    <input type="text" id="managerPhone" value="${escapeHtml(actor?.manager?.phone || '')}" placeholder="+2348012345678">
                                 </label>
                                 <label>Manager WhatsApp
-                                    <input type="text" id="managerWhatsapp" value="${escapeHtml(artist?.manager?.whatsapp || '')}" placeholder="Leave blank to use phone number">
+                                    <input type="text" id="managerWhatsapp" value="${escapeHtml(actor?.manager?.whatsapp || '')}" placeholder="Leave blank to use phone number">
                                 </label>
                             </div>
                         </form>
                     </div>
                 </div>`;
 
-            const form = $('#artistForm');
-            const pricesContainer = $('#artistPrices');
-            const artistImageFile = $('#artistImageFile');
-            const artistImagePreview = $('#artistImagePreview');
+            const form = $('#actorForm');
+            const pricesContainer = $('#actorPrices');
+            const actorImageFile = $('#actorImageFile');
+            const actorImagePreview = $('#actorImagePreview');
 
             // Existing image url (kept if the admin doesn't pick a new file)
-            const existingImageUrl = artist?.image || '';
+            const existingImageUrl = actor?.image || '';
 
             function addPriceRow(price = {}) {
                 const row = document.createElement('div');
@@ -807,15 +807,15 @@ async function loadAdmin() {
                 pricesContainer.appendChild(row);
             }
 
-            if (artist && Array.isArray(artist.prices) && artist.prices.length) {
-                artist.prices.forEach(price => addPriceRow(price));
+            if (actor && Array.isArray(actor.prices) && actor.prices.length) {
+                actor.prices.forEach(price => addPriceRow(price));
             } else {
                 addPriceRow();
             }
 
             $('#addPriceBtn').addEventListener('click', () => addPriceRow());
 
-            artistImageFile.addEventListener('change', function () {
+            actorImageFile.addEventListener('change', function () {
                 const file = this.files?.[0];
                 if (!file) return;
 
@@ -834,22 +834,22 @@ async function loadAdmin() {
 
                 const reader = new FileReader();
                 reader.onload = event => {
-                    artistImagePreview.innerHTML = `<img src="${event.target.result}" alt="Selected artist image">`;
+                    actorImagePreview.innerHTML = `<img src="${event.target.result}" alt="Selected actor image">`;
                 };
                 reader.readAsDataURL(file);
             });
 
-            function closeArtistModal() {
+            function closeactorModal() {
                 modalRoot.innerHTML = '';
             }
 
-            $('#closeArtistModal').addEventListener('click', closeArtistModal);
-            $('#cancelArtistBtn').addEventListener('click', closeArtistModal);
+            $('#closeactorModal').addEventListener('click', closeactorModal);
+            $('#cancelactorBtn').addEventListener('click', closeactorModal);
 
             form.addEventListener('submit', async event => {
                 event.preventDefault();
 
-                const artistId = $('#artistId').value.trim();
+                const actorId = $('#actorId').value.trim();
 
                 const prices = [];
                 document.querySelectorAll('.price-row').forEach(row => {
@@ -863,13 +863,13 @@ async function loadAdmin() {
                     }
                 });
 
-                const name = $('#artistName').value.trim();
-                const category = $('#artistCategory').value.trim();
-                const role = $('#artistRole').value.trim();
-                const location = $('#artistLocation').value.trim();
-                const bio = $('#artistBio').value.trim();
-                const featured = $('#artistFeatured').checked;
-                const imageFile = artistImageFile.files?.[0] || null;
+                const name = $('#actorName').value.trim();
+                const category = $('#actorCategory').value.trim();
+                const role = $('#actorRole').value.trim();
+                const location = $('#actorLocation').value.trim();
+                const bio = $('#actorBio').value.trim();
+                const featured = $('#actorFeatured').checked;
+                const imageFile = actorImageFile.files?.[0] || null;
                 const manager = {
                     name: $('#managerName').value.trim(),
                     email: $('#managerEmail').value.trim(),
@@ -877,8 +877,8 @@ async function loadAdmin() {
                     whatsapp: $('#managerWhatsapp').value.trim()
                 };
 
-                if (!name) { toast('Artist name is required'); return; }
-                if (!category) { toast('Artist category is required'); return; }
+                if (!name) { toast('actor name is required'); return; }
+                if (!category) { toast('actor category is required'); return; }
 
                 const formData = new FormData();
                 formData.append('name', name);
@@ -896,36 +896,36 @@ async function loadAdmin() {
                 }
 
                 const saveButton = form.querySelector('button[type="submit"]');
-                const originalText = saveButton ? saveButton.textContent : 'Save Artist';
+                const originalText = saveButton ? saveButton.textContent : 'Save actor';
 
                 if (saveButton) {
                     saveButton.disabled = true;
-                    saveButton.textContent = imageFile ? 'Uploading Image...' : 'Saving Artist...';
+                    saveButton.textContent = imageFile ? 'Uploading Image...' : 'Saving actor...';
                 }
 
                 try {
-                    let savedArtist;
+                    let savedactor;
 
-                    if (artistId) {
-                        savedArtist = await api(`/artists/${artistId}`, { method: 'PUT', body: formData });
-                        toast('Artist updated successfully');
+                    if (actorId) {
+                        savedactor = await api(`/actors/${actorId}`, { method: 'PUT', body: formData });
+                        toast('actor updated successfully');
                     } else {
-                        savedArtist = await api('/artists', { method: 'POST', body: formData });
-                        toast('Artist added successfully');
+                        savedactor = await api('/actors', { method: 'POST', body: formData });
+                        toast('actor added successfully');
                     }
 
-                    console.log('Artist saved:', savedArtist);
+                    console.log('actor saved:', savedactor);
                     
-                    // Refresh the admin view to show the updated list of artists
-                    closeArtistModal();
+                    // Refresh the admin view to show the updated list of actors
+                    closeactorModal();
                     await loadAdmin();
-                    if (savedArtist?._id && !document.querySelector(`[data-id="${savedArtist._id}"]`)) {
+                    if (savedactor?._id && !document.querySelector(`[data-id="${savedactor._id}"]`)) {
                         await new Promise(resolve => setTimeout(resolve, 500));
                         await loadAdmin();
                     } 
                 } catch (error) {
-                    console.error('Save artist error:', error);
-                    toast(error.message || 'Unable to save artist');
+                    console.error('Save actor error:', error);
+                    toast(error.message || 'Unable to save actor');
                 } finally {
                     if (saveButton) {
                         saveButton.disabled = false;
@@ -970,7 +970,7 @@ function init() {
 
         const gallery = e.target.closest('[data-gallery]');
         if (gallery) {
-            toast(gallery.dataset.gallery + ' selected — choose an artist to book.');
+            toast(gallery.dataset.gallery + ' selected — choose an actor to book.');
         }
     });
 
@@ -985,8 +985,8 @@ function init() {
     });
 
     // Load only the page that is currently being viewed
-    if (document.querySelector('#artistGrid')) loadArtists();
-    if (document.querySelector('#artistProfile')) loadArtistProfile();
+    if (document.querySelector('#actorGrid')) loadactors();
+    if (document.querySelector('#actorProfile')) loadactorProfile();
     if (document.querySelector('#clientView')) loadClient();
     if (document.querySelector('#adminView')) loadAdmin();
 }

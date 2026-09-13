@@ -1,7 +1,7 @@
 require('dotenv').config(); 
 const mongoose=require('mongoose'); 
 const User=require('./models/User'); 
-const Artist=require('./models/Artist'); 
+const actor=require('./models/Actor'); 
 const connectDB=require('./config/db');
 (async()=>{
     try{
@@ -20,7 +20,7 @@ const connectDB=require('./config/db');
             u.password=process.env.ADMIN_PASSWORD||u.password;await u.save();
         }
         console.log('Admin ready:',email);
-        if(await Artist.countDocuments()===0)
+        if(await actor.countDocuments()===0)
             {
                 const names=[
                     [
@@ -29,50 +29,50 @@ const connectDB=require('./config/db');
                     'micheal_face.jpg'],
                     ['Daniel K',
                         'Keynote Speaker',
-                        'artist-2.jpg'
+                        'actor-2.jpg'
                     ],
                     [
                         'Maya Rose',
                         'Comedian & Host',
-                        'artist-3.jpg'
+                        'actor-3.jpg'
                     ],
                     ['Jonas Field',
                         'Athlete & Analyst',
-                        'artist-4.jpg'
+                        'actor-4.jpg'
                     ],
                     ['Lena Star',
                         'DJ & Producer',
-                        'artist-5.jpg'
+                        'actor-5.jpg'
                     ],
                     ['Ana Torres',
                         'TV Host & Presenter',
-                        'artist-6.jpg'
+                        'actor-6.jpg'
                     ],
                     ['Chris Voice',
-                        'Gospel Artist'
-                        ,'artist-7.jpg'
+                        'Gospel actor'
+                        ,'actor-7.jpg'
                     ],
                     ['Nora James',
                         'Actress & Host',
-                        'artist-8.jpg'
+                        'actor-8.jpg'
                     ],
                     ['Victor Ray',
                         'Live Band',
-                        'artist-9.jpg'
+                        'actor-9.jpg'
                     ],
                     ['Ella Prime',
                         'Influencer',
-                        'artist-10.jpg'
+                        'actor-10.jpg'
                     ],
                     ['Samuel King',
                         'Speaker',
-                        'artist-11.jpg'
+                        'actor-11.jpg'
                     ],
                     ['Rita Bloom',
                         'Musician',
-                        'artist-12.jpg']
+                        'actor-12.jpg']
                 ];
-                await Artist.insertMany(
+                await actor.insertMany(
                     names.map((x,i)=>({name:x[0],
                         category:i%2===0?'Actor':i%2===1?'Actor':'Entertainer',
                         role:x[1],
@@ -99,7 +99,7 @@ const connectDB=require('./config/db');
                     })
                 )
             );
-            console.log('Demo artists seeded.');
+            console.log('Demo actors seeded.');
         }
         await mongoose.disconnect();
     }
