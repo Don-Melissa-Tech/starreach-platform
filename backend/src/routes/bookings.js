@@ -1,14 +1,14 @@
 const router=require('express').Router(); 
 const Booking=require('../models/Booking'); 
-const actor=require('../models/Actor'); 
+const Actor=require('../models/Actor'); 
 const {protect,adminOnly}=require('../middleware/auth');
 router.post('/',protect,async(req,res)=>{
     try{
         const {actor,section,eventDate,eventType,venue,city}=req.body;
         if(!actor||!section||!eventDate||!eventType||!venue||!city)
             return res.status(400).json({message:'Please complete all required booking fields'});
-        const a=await actor.findById(actor);
-        if(!a)return res.status(404).json({message:'actor not found'});
+        const a=await Actor.findById(actor);
+        if(!a)return res.status(404).json({message:'Actor not found'});
         const b=await Booking.create({...req.body,client:req.user._id});
         res.status(201).json(await b.populate('actor','name category image'));
     }
