@@ -2,7 +2,7 @@ const router = require('express').Router();
 const multer = require('multer');
 const streamifier = require('streamifier');
 
-const actor = require('../models/Actor');
+const Actor = require('../models/Actor');
 const cloudinary = require('../config/cloudinary');
 const { protect, adminOnly, optionalAuth } = require('../middleware/auth');
 
@@ -29,10 +29,6 @@ function parseManagerInput(raw) {
         whatsapp: manager.whatsapp?.trim() || ''
     };
 }
-
-// =====================================================
-// IMAGE UPLOAD CONFIGURATION (Cloudinary, in-memory)
-// =====================================================
 
 const fileFilter = (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -62,47 +58,35 @@ function uploadToCloudinary(buffer) {
     });
 }
 
-// =====================================================
-// GET ALL actorS
-// =====================================================
-
 router.get('/', optionalAuth, async (req, res) => {
     try {
         const q = {};
         if (req.query.category) q.category = req.query.category;
         if (req.query.featured === 'true') q.featured = true;
 
-        const actors = await actor.find(q).sort({ featured: -1, name: 1 });
+        const actors = await Actor.find(q).sort({ featured: -1, name: 1 });
         res.json(actors);
     } catch (e) {
         res.status(500).json({ message: e.message });
     }
 });
 
-// =====================================================
-// GET ONE actor
-// =====================================================
-
 router.get('/:id', optionalAuth, async (req, res) => {
     try {
-        const actor = await actor.findById(req.params.id);
-        if (!actor) return res.status(404).json({ message: 'actor not found' });
+        const actor = await Actor.findById(req.params.id);
+        if (!actor) return res.status(404).json({ message: 'Actor not found' });
         res.json(actor);
     } catch (e) {
         res.status(400).json({ message: 'Invalid actor id' });
     }
 });
 
-// =====================================================
-// ADD actor
-// =====================================================
-
 router.post('/', protect, adminOnly, upload.single('image'), async (req, res) => {
     try {
         const { name, category, role, bio, location, featured, prices, manager } = req.body;
 
         if (!name || !category) {
-            return res.status(400).json({ message: 'actor name and category are required' });
+            return res.status(400).json({ message: 'Actor name and category are required' });
         }
 
         let parsedPrices = [];
@@ -127,7 +111,7 @@ router.post('/', protect, adminOnly, upload.single('image'), async (req, res) =>
             image = result.secure_url;
         }
 
-        const actor = await actor.create({
+        const actor = await Actor.create({
             name: name.trim(),
             category: category.trim(),
             role: role?.trim() || '',
@@ -145,19 +129,15 @@ router.post('/', protect, adminOnly, upload.single('image'), async (req, res) =>
     }
 });
 
-// =====================================================
-// EDIT actor
-// =====================================================
-
 router.put('/:id', protect, adminOnly, upload.single('image'), async (req, res) => {
     try {
-        const actor = await actor.findById(req.params.id);
-        if (!actor) return res.status(404).json({ message: 'actor not found' });
+        const actor = await Actor.findById(req.params.id);
+        if (!actor) return res.status(404).json({ message: 'Actor not found' });
 
         const { name, category, role, bio, location, featured, prices, manager } = req.body;
 
         if (!name || !category) {
-            return res.status(400).json({ message: 'actor name and category are required' });
+            return res.status(400).json({ message: 'Actor name and category are required' });
         }
 
         let parsedPrices = [];
@@ -201,25 +181,17 @@ router.put('/:id', protect, adminOnly, upload.single('image'), async (req, res) 
     }
 });
 
-// =====================================================
-// DELETE actor
-// =====================================================
-
 router.delete('/:id', protect, adminOnly, async (req, res) => {
     try {
-        const actor = await actor.findById(req.params.id);
-        if (!actor) return res.status(404).json({ message: 'actor not found' });
+        const actor = await Actor.findById(req.params.id);
+        if (!actor) return res.status(404).json({ message: 'Actor not found' });
 
-        await actor.findByIdAndDelete(req.params.id);
-        res.json({ message: 'actor deleted successfully' });
+        await Actor.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Actor deleted successfully' });
     } catch (e) {
         res.status(500).json({ message: e.message });
     }
 });
-
-// =====================================================
-// MULTER ERROR HANDLER
-// =====================================================
 
 router.use((err, req, res, next) => {
     if (err instanceof multer.MulterError) {
