@@ -5,7 +5,7 @@ const User = require('../models/User');
 const Actor = require('../models/Actor');
 const Booking = require('../models/Booking');
 const { protect, adminOnly } = require('../middleware/auth');
-const sendEmail = require('../utils/sendEmail');
+const sendEmail = require('../utils/sendEmail.js');
 
 router.get('/stats', protect, adminOnly, async (req, res) => {
     const [clients, actors, bookings, pending] = await Promise.all([
@@ -34,21 +34,26 @@ router.delete('/clients/:id', protect, adminOnly, async (req, res) => {
 });
 
 router.post('/clients/:id/reset-password', protect, adminOnly, async (req, res) => {
-    const client = await User.findById(req.params.id);
-    if (!client) return res.status(404).json({ message: 'Client not found' });
+    try {
+        const client = await User.findById(req.params.id);
+        if (!client) return res.status(404).json({ message: 'Client not found' });
 
-    const tempPassword = crypto.randomBytes(6).toString('hex');
-    client.password = tempPassword;
-    client.mustResetPassword = true;
-    await client.save();
+        const tempPassword = crypto.randomBytes(6).toString('hex');
+        client.password = tempPassword;
+        client.mustResetPassword = true;
+        await client.save();
 
-    await sendEmail({
-        to: client.email,
-        subject: 'Your password has been reset',
-        text: `Your temporary password is: ${tempPassword}\nPlease log in and change it immediately.`
-    });
+        await sendEmail({
+            to: client.email,
+            subject: 'Your password has been reset',
+            text: `Your temporary password is: ${tempPassword}\nPlease log in and change it immediately.`
+        });
 
-    res.json({ message: 'Temporary password sent to client email' });
+        res.json({ message: 'Temporary password sent to client email' });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ message: error.message || 'Unable to reset password' });
+    }
 });
 
 module.exports = router;
