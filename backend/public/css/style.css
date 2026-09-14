@@ -1724,3 +1724,10 @@ footer{
     opacity: 0;
     transform: translateX(-100%);
 }
+.admin-sidebar-brand .brand {
+    color: #3bb26c !important;
+}
+
+.admin-sidebar-brand .brand span {
+    color: #e8b84b;
+}
